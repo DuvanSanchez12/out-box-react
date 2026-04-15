@@ -1,4 +1,4 @@
-const { tasks, workers, findWorkerById, findTaskById } = require('../data/database');
+const { tasks, workers, findWorkerById, findTaskById } = require('../models/database');
 
 let nextTaskId = 2;
 // generar una nueva tarea

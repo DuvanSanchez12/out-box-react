@@ -1,4 +1,4 @@
-const { workers, findWorkerById } = require('../data/database');
+const { workers, findWorkerById } = require('../models/database');
 
 const getById = (req, res) => {
   const worker = findWorkerById(req.params.id);

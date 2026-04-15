@@ -1,4 +1,4 @@
-const { findTaskById } = require('../data/database');
+const { findTaskById } = require('../models/database');
 
 const uploadEvidence = (req, res) => {
   const task = findTaskById(req.params.id);

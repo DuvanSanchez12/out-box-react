@@ -1,4 +1,4 @@
-const { workers } = require('../data/database');
+const { workers } = require('../models/database');
 
 let nextId = 3; // Para generar IDs automáticos
 

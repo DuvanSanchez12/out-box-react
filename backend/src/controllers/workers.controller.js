@@ -1,4 +1,4 @@
-const { workers } = require('../data/database');
+const { workers } = require('../models/database');
 
 const getAll = (req, res) => {
   let resultado = [...workers];

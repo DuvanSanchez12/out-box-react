@@ -1,4 +1,4 @@
-const { reviews, findTaskById, findWorkerById, updateWorkerReputation } = require('../data/database');
+const { reviews, findTaskById, findWorkerById, updateWorkerReputation } = require('../models/database');
 //crear una revision de tareas
 const createReview = (req, res) => {
   const task = findTaskById(req.params.task_id);

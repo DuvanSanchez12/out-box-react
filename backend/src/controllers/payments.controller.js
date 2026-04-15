@@ -1,4 +1,4 @@
-const { findTaskById, workers, findWorkerById } = require('../data/database');
+const { findTaskById, workers, findWorkerById } = require('../models/database');
 
 const releasePayment = (req, res) => {
   const task = findTaskById(req.params.task_id);
