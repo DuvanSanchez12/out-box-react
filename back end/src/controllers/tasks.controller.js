@@ -1,7 +1,7 @@
 const { tasks, workers, findWorkerById, findTaskById } = require('../data/database');
 
 let nextTaskId = 2;
-
+// generar una nueva tarea
 const create = (req, res) => {
   const { titulo, descripcion, presupuesto, agente_ia_id } = req.body;
   
@@ -26,7 +26,7 @@ const create = (req, res) => {
   tasks.push(nuevaTarea);
   res.status(201).json({ ok: true, data: nuevaTarea });
 };
-
+// traer todas las tareas
 const getAll = (req, res) => {
   let resultado = [...tasks];
   
@@ -40,7 +40,7 @@ const getAll = (req, res) => {
   
   res.json({ ok: true, data: resultado });
 };
-
+// tarea especifica
 const getById = (req, res) => {
   const task = findTaskById(req.params.id);
   
@@ -50,7 +50,7 @@ const getById = (req, res) => {
   
   res.json({ ok: true, data: task });
 };
-
+//actualizar estatus de tarea
 const updateStatus = (req, res) => {
   const task = findTaskById(req.params.id);
   
