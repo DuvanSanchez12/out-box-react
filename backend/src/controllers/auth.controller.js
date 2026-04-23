@@ -1,56 +1,50 @@
-const { workers } = require('../data/database');
+const AuthModel = require('../models/auth.model');
 
-let nextId = 3; // Para generar IDs automáticos
+const register = async (req, res) => {
+  try {
+    const { email, password, nombre, ubicacion, tarifa_hora, habilidades } = req.body;
 
-const register = (req, res) => {
-  const { email, password, nombre, ubicacion, tarifa_hora, habilidades } = req.body;
-  
-  // Verificar si ya existe
-  const existe = workers.find(w => w.email === email);
-  if(existe) {
-    return res.status(400).json({ ok: false, msg: 'El email ya está registrado' });
+    if (!email || !password || !nombre) {
+      return res.badRequest('email, password y nombre son obligatorios');
+    }
+
+    const existe = await AuthModel.findByEmail(email);
+    if (existe) return res.badRequest('El email ya existe');
+
+    const nuevoId = await AuthModel.createWorker({
+      email,
+      password,
+      nombre,
+      ubicacion,
+      tarifa_hora,
+      habilidades
+    });
+
+    return res.ok({ id: nuevoId, nombre, email }, 'Usuario registrado');
+  } catch (error) {
+    return res.serverError(error);
   }
-  
-  const nuevoTrabajador = {
-    id: nextId++,
-    email,
-    password, // En producción deberías encriptar con bcrypt
-    nombre,
-    ubicacion,
-    tarifa_hora,
-    habilidades: habilidades || [],
-    reputacion: 5.0,
-    saldo_escrow: 0,
-    createdAt: new Date()
-  };
-  
-  workers.push(nuevoTrabajador);
-  
-  res.status(201).json({ 
-    ok: true, 
-    data: { id: nuevoTrabajador.id, nombre: nuevoTrabajador.nombre, email: nuevoTrabajador.email } 
-  });
 };
 
-const login = (req, res) => {
-  const { email, password } = req.body;
-  
-  const trabajador = workers.find(w => w.email === email && w.password === password);
-  
-  if(!trabajador) {
-    return res.status(401).json({ ok: false, msg: 'Credenciales inválidas' });
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.badRequest('email y password son obligatorios');
+    }
+
+    const trabajador = await AuthModel.findByEmail(email);
+    if (!trabajador || trabajador.password !== password) {
+      return res.badRequest('Credenciales invalidas');
+    }
+
+    return res.ok({
+      token: `jwt_${trabajador.id}`,
+      user: { id: trabajador.id, nombre: trabajador.nombre }
+    });
+  } catch (error) {
+    return res.serverError(error);
   }
-  
-  // Token simplificado para la clase (en producción usar JWT real)
-  const token = `fake_jwt_token_${trabajador.id}_${Date.now()}`;
-  
-  res.json({ 
-    ok: true, 
-    data: { 
-      token, 
-      user: { id: trabajador.id, nombre: trabajador.nombre, email: trabajador.email } 
-    } 
-  });
 };
 
 module.exports = { register, login };

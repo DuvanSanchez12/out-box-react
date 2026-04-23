@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
+const responseMiddleware = require('./middleware/response.middleware');
 
 // Middleware para parsear JSON
 app.use(express.json());
+app.use(responseMiddleware);
 
 // Importar rutas
 const authRoutes = require('./routes/auth.routes');
