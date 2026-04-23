@@ -1,39 +1,40 @@
+<<<<<<< HEAD
 const { workers, findWorkerById } = require('../models/database');
+=======
+const ProfilesModel = require('../models/profiles.model');
+>>>>>>> 4bad21e (Cambios de verdad, no tonterias como las que subian)
 
-const getById = (req, res) => {
-  const worker = findWorkerById(req.params.id);
-  
-  if(!worker) {
-    return res.status(404).json({ ok: false, msg: 'Perfil no encontrado' });
+const getById = async (req, res) => {
+  try {
+    const worker = await ProfilesModel.findById(req.params.id);
+    if (!worker) return res.badRequest('Perfil no encontrado');
+
+    const profile = {
+      ...worker,
+      habilidades: typeof worker.habilidades === 'string'
+        ? JSON.parse(worker.habilidades || '[]')
+        : worker.habilidades
+    };
+
+    return res.ok(profile);
+  } catch (error) {
+    return res.serverError(error);
   }
-  
-  // Devolver solo datos públicos
-  const publicProfile = {
-    id: worker.id,
-    nombre: worker.nombre,
-    ubicacion: worker.ubicacion,
-    tarifa_hora: worker.tarifa_hora,
-    habilidades: worker.habilidades,
-    reputacion: worker.reputacion
-  };
-  
-  res.json({ ok: true, data: publicProfile });
 };
 
-const update = (req, res) => {
-  const worker = findWorkerById(req.params.id);
-  
-  if(!worker) {
-    return res.status(404).json({ ok: false, msg: 'Perfil no encontrado' });
+const update = async (req, res) => {
+  try {
+    const exists = await ProfilesModel.findById(req.params.id);
+    if (!exists) return res.badRequest('Perfil no encontrado');
+
+    const updated = await ProfilesModel.update(req.params.id, req.body);
+    if (!updated) return res.badRequest('No hay campos validos para actualizar');
+
+    const profile = await ProfilesModel.findById(req.params.id);
+    return res.ok(profile, 'Perfil actualizado');
+  } catch (error) {
+    return res.serverError(error);
   }
-  
-  // Actualizar campos permitidos
-  if(req.body.ubicacion) worker.ubicacion = req.body.ubicacion;
-  if(req.body.tarifa_hora) worker.tarifa_hora = req.body.tarifa_hora;
-  if(req.body.habilidades) worker.habilidades = req.body.habilidades;
-  if(req.body.nombre) worker.nombre = req.body.nombre;
-  
-  res.json({ ok: true, data: worker });
 };
 
 module.exports = { getById, update };

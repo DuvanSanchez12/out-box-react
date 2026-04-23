@@ -1,39 +1,39 @@
+<<<<<<< HEAD
 const { findTaskById } = require('../models/database');
+=======
+const TasksModel = require('../models/tasks.model');
+const EvidenceModel = require('../models/evidence.model');
+>>>>>>> 4bad21e (Cambios de verdad, no tonterias como las que subian)
 
-const uploadEvidence = (req, res) => {
-  const task = findTaskById(req.params.id);
-  
-  if(!task) {
-    return res.status(404).json({ ok: false, msg: 'Tarea no encontrada' });
+const uploadEvidence = async (req, res) => {
+  try {
+    const task = await TasksModel.findById(req.params.id);
+    if (!task) return res.badRequest('Tarea no encontrada');
+
+    const payload = {
+      descripcion: req.body.descripcion || 'Evidencia subida',
+      coordenadas: req.body.coordenadas || '0,0',
+      firma: req.body.firma || ''
+    };
+
+    const evidenceId = await EvidenceModel.addEvidence(req.params.id, payload);
+    return res.ok({ id: evidenceId, ...payload }, 'Evidencia cargada');
+  } catch (error) {
+    return res.serverError(error);
   }
-  
-  // Simular carga de evidencia (en producción sería upload de archivos)
-  const { descripcion, coordenadas, firma } = req.body;
-  
-  const nuevaEvidencia = {
-    id: Date.now(),
-    descripcion: descripcion || 'Evidencia subida',
-    coordenadas: coordenadas || '4.6097,-74.0817',
-    firma: firma || 'firma_base64_simulada',
-    fecha: new Date()
-  };
-  
-  task.evidencia.push(nuevaEvidencia);
-  
-  res.status(201).json({ ok: true, data: nuevaEvidencia });
 };
 
-const validateTask = (req, res) => {
-  const task = findTaskById(req.params.id);
-  
-  if(!task) {
-    return res.status(404).json({ ok: false, msg: 'Tarea no encontrada' });
+const validateTask = async (req, res) => {
+  try {
+    const task = await TasksModel.findById(req.params.id);
+    if (!task) return res.badRequest('Tarea no encontrada');
+
+    await EvidenceModel.validateTask(req.params.id);
+    const updatedTask = await TasksModel.findById(req.params.id);
+    return res.ok(updatedTask, 'Tarea validada exitosamente');
+  } catch (error) {
+    return res.serverError(error);
   }
-  
-  task.validado = true;
-  task.estado = 'completado';
-  
-  res.json({ ok: true, data: { msg: 'Tarea validada exitosamente', task } });
 };
 
 module.exports = { uploadEvidence, validateTask };
