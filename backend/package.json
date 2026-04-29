@@ -9,6 +9,8 @@
     "dev": "nodemon index.js"
 =======
     "dev": "nodemon index.js",
+    "db:init": "node scripts/init-db.js",
+    "start:with-db": "npm run db:init && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
 >>>>>>> 4bad21e (Cambios de verdad, no tonterias como las que subian)
   },
