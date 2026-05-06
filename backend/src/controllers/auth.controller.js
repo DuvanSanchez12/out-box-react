@@ -1,4 +1,5 @@
 const AuthModel = require('../models/auth.model');
+const jwt = require('jsonwebtoken');
 
 const register = async (req, res) => {
   try {
@@ -20,7 +21,13 @@ const register = async (req, res) => {
       habilidades
     });
 
-    return res.ok({ id: nuevoId, nombre, email }, 'Usuario registrado');
+    const token = jwt.sign(
+      { id: nuevoId, email, nombre },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
+    return res.ok({ token, user: { id: nuevoId, nombre, email } }, 'Usuario registrado');
   } catch (error) {
     return res.serverError(error);
   }
@@ -34,13 +41,24 @@ const login = async (req, res) => {
     }
 
     const trabajador = await AuthModel.findByEmail(email);
-    if (!trabajador || trabajador.password !== password) {
+    if (!trabajador) {
       return res.badRequest('Credenciales invalidas');
     }
 
+    const validPassword = await AuthModel.comparePassword(password, trabajador.password);
+    if (!validPassword) {
+      return res.badRequest('Credenciales invalidas');
+    }
+
+    const token = jwt.sign(
+      { id: trabajador.id, email: trabajador.email, nombre: trabajador.nombre },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN }
+    );
+
     return res.ok({
-      token: `jwt_${trabajador.id}`,
-      user: { id: trabajador.id, nombre: trabajador.nombre }
+      token,
+      user: { id: trabajador.id, nombre: trabajador.nombre, email: trabajador.email }
     });
   } catch (error) {
     return res.serverError(error);

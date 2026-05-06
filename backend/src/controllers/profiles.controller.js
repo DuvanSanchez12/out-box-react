@@ -23,6 +23,10 @@ const update = async (req, res) => {
     const exists = await ProfilesModel.findById(req.params.id);
     if (!exists) return res.badRequest('Perfil no encontrado');
 
+    if (req.usuario && req.usuario.id !== parseInt(req.params.id)) {
+      return res.badRequest('No tienes permiso para actualizar este perfil');
+    }
+
     const updated = await ProfilesModel.update(req.params.id, req.body);
     if (!updated) return res.badRequest('No hay campos validos para actualizar');
 
