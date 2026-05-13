@@ -6,6 +6,12 @@ const responseMiddleware = require('./middleware/response.middleware');
 app.use(express.json());
 app.use(responseMiddleware);
 
+const cors = require('cors');
+
+app.use(cors({
+    origin: 'http://localhost:5173'
+}));    
+
 // Importar rutas
 const authRoutes = require('./routes/auth.routes');
 const profilesRoutes = require('./routes/profiles.routes');
@@ -16,12 +22,12 @@ const paymentsRoutes = require('./routes/payments.routes');
 const reviewsRoutes = require('./routes/reviews.routes');
 
 // Usar rutas
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1/profiles', profilesRoutes);
-app.use('/api/v1/workers', workersRoutes);
-app.use('/api/v1/tasks', tasksRoutes);
-app.use('/api/v1/evidence', evidenceRoutes);
-app.use('/api/v1/payments', paymentsRoutes);
-app.use('/api/v1/reviews', reviewsRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/profiles', profilesRoutes);
+app.use('/api/workers', workersRoutes);
+app.use('/api/tasks', tasksRoutes);
+app.use('/api/evidence', evidenceRoutes);
+app.use('/api/payments', paymentsRoutes);
+app.use('/api/reviews', reviewsRoutes);
 
 module.exports = app;
